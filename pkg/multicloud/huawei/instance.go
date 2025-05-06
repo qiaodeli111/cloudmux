@@ -1142,3 +1142,12 @@ func (self *SInstance) DisableSourceDestCheck() error {
 	}
 	return nil
 }
+
+// 批量添加网卡
+func (self *SInstance) BatchAddNics(nics []map[string]interface{}) error {
+	err := self.host.zone.region.BatchAddServerNics(self.ID, nics)
+	if err != nil {
+		return errors.Wrapf(err, "BatchAddServerNics")
+	}
+	return nil
+}

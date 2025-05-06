@@ -707,3 +707,20 @@ func (region *SRegion) GetIVMs() ([]cloudprovider.ICloudVM, error) {
 	}
 	return ret, nil
 }
+
+// https://console.huaweicloud.com/apiexplorer/#/openapi/ECS/doc?api=BatchAddServerNics
+func (self *SRegion) BatchAddServerNics(instanceId string, nics []map[string]interface{}) error {
+	params := map[string]interface{}{
+		"nics": nics,
+	}
+	resp, err := self.post(SERVICE_ECS, fmt.Sprintf("cloudservers/%s/nics", instanceId), params)
+	if err != nil {
+		return err
+	}
+	jobId, err := resp.GetString("job_id")
+	if err != nil {
+		return err
+	}
+	err = self.waitTaskStatus(SERVICE_ECS, jobId, TASK_SUCCESS, 15*time.Second, 10*time.Minute)
+	return err
+}
