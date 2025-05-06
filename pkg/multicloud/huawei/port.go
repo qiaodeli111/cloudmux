@@ -65,6 +65,23 @@ type Port struct {
 	FixedIps        []SFixedIP
 }
 
+type UpdatePortOpts struct {
+	Name                string               `json:"name,omitempty"`
+	SecurityGroups      []string             `json:"security_groups,omitempty"`
+	AllowedAddressPairs []AllowedAddressPair `json:"allowed_address_pairs,omitempty"`
+	ExtraDhcpOpts       []ExtraDhcpOpt       `json:"extra_dhcp_opts,omitempty"`
+}
+
+type AllowedAddressPair struct {
+	IpAddress  string `json:"ip_address"`
+	MacAddress string `json:"mac_address,omitempty"`
+}
+
+type ExtraDhcpOpt struct {
+	OptName  string `json:"opt_name"`
+	OptValue string `json:"opt_value"`
+}
+
 func (port *Port) GetName() string {
 	if len(port.Name) > 0 {
 		return port.Name
@@ -171,4 +188,25 @@ func (self *SRegion) GetPorts(instanceId string) ([]Port, error) {
 		query.Set("marker", part[len(part)-1].ID)
 	}
 	return ret, nil
+}
+
+// https://console.huaweicloud.com/apiexplorer/#/openapi/VPC/doc?version=v2&api=UpdatePort
+func (self *SRegion) UpdatePort(id string, opts UpdatePortOpts) error {
+	// 构造请求体
+	params := map[string]interface{}{
+		"port": map[string]interface{}{
+			"name":                  opts.Name,
+			"security_groups":       opts.SecurityGroups,
+			"allowed_address_pairs": opts.AllowedAddressPairs,
+			"extra_dhcp_opts":       opts.ExtraDhcpOpts,
+		},
+	}
+
+	// 发送PUT请求
+	_, err := self.put(SERVICE_VPC, "ports/"+id, params)
+	if err != nil {
+		return errors.Wrapf(err, "update port %s", id)
+	}
+
+	return nil
 }

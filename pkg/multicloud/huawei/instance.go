@@ -1121,3 +1121,24 @@ func (self *SInstance) SaveImage(opts *cloudprovider.SaveImageOptions) (cloudpro
 	}
 	return image, nil
 }
+
+func (self *SInstance) DisableSourceDestCheck() error {
+	params := UpdatePortOpts{
+		AllowedAddressPairs: []AllowedAddressPair{
+			{
+				IpAddress: "1.1.1.1/0",
+			},
+		},
+	}
+	ports, err := self.host.zone.region.GetPorts(self.ID)
+	if err != nil {
+		return errors.Wrapf(err, "GetPorts")
+	}
+	for _, port := range ports {
+		err := self.host.zone.region.UpdatePort(port.ID, params)
+		if err != nil {
+			return errors.Wrapf(err, "UpdatePort")
+		}
+	}
+	return nil
+}
