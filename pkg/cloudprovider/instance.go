@@ -105,6 +105,9 @@ type SDiskInfo struct {
 	Name              string
 	// aws gp3 only
 	Throughput int
+	// huawei only
+	HWPassthrough       bool
+	DeleteOnTermination bool
 }
 
 type GuestDiskCreateOptions struct {

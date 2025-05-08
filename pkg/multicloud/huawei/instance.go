@@ -788,8 +788,10 @@ func (self *SRegion) CreateInstance(keypair, zoneId string, opts *cloudprovider.
 	dataDisks := []map[string]interface{}{}
 	for _, disk := range opts.DataDisks {
 		dataDisks = append(dataDisks, map[string]interface{}{
-			"volumetype": disk.StorageType,
-			"size":       disk.SizeGB,
+			"volumetype":            disk.StorageType,
+			"size":                  disk.SizeGB,
+			"hw:passthrough":        disk.HWPassthrough,
+			"delete_on_termination": disk.DeleteOnTermination,
 		})
 	}
 	extendparam := map[string]interface{}{
@@ -829,8 +831,9 @@ func (self *SRegion) CreateInstance(keypair, zoneId string, opts *cloudprovider.
 		"security_groups": secgroups,
 		"vpcid":           opts.ExternalVpcId,
 		"root_volume": map[string]interface{}{
-			"volumetype": opts.SysDisk.StorageType,
-			"size":       opts.SysDisk.SizeGB,
+			"volumetype":     opts.SysDisk.StorageType,
+			"size":           opts.SysDisk.SizeGB,
+			"hw:passthrough": opts.SysDisk.HWPassthrough,
 		},
 		"data_volumes": dataDisks,
 		"extendparam":  extendparam,
